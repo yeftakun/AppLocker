@@ -1,7 +1,7 @@
 # AppLocker
 
 ## Deskripsi Aplikasi
-AppLocker adalah aplikasi sederhana yang dibuat untuk membantu menjaga fokus saat ujian atau tugas penting lainnya. Terkadang, kita merasa teralihkan dengan keinginan untuk bermain game, bahkan saat kita sedang membutuhkan konsentrasi untuk ujian. Bukannya hanya meng-uninstall game, yang bisa mempengaruhi umur SSD karena harus mengunduh ulang, AppLocker memungkinkan Anda untuk mengunci aplikasi tertentu untuk jangka waktu tertentu.
+<!--AppLocker adalah aplikasi sederhana yang dibuat untuk membantu menjaga fokus saat ujian atau tugas penting lainnya. Terkadang, kita merasa teralihkan dengan keinginan untuk bermain game, bahkan saat kita sedang membutuhkan konsentrasi untuk ujian. Bukannya hanya meng-uninstall game, yang bisa mempengaruhi umur SSD karena harus mengunduh ulang, AppLocker memungkinkan Anda untuk mengunci aplikasi tertentu untuk jangka waktu tertentu.-->
 
 Aplikasi ini dapat digunakan untuk mengunci aplikasi agar tidak bisa dijalankan sampai waktu yang telah ditentukan. Jadi, Anda tidak perlu khawatir lagi tentang tergoda untuk bermain game selama ujian atau tugas penting lainnya!
 
