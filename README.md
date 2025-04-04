@@ -1,36 +1,37 @@
 # AppLocker
 
 ## Deskripsi Aplikasi
-<!--AppLocker adalah aplikasi sederhana yang dibuat untuk membantu menjaga fokus saat ujian atau tugas penting lainnya. Terkadang, kita merasa teralihkan dengan keinginan untuk bermain game, bahkan saat kita sedang membutuhkan konsentrasi untuk ujian. Bukannya hanya meng-uninstall game, yang bisa mempengaruhi umur SSD karena harus mengunduh ulang, AppLocker memungkinkan Anda untuk mengunci aplikasi tertentu untuk jangka waktu tertentu.-->
+Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 
-Aplikasi ini dapat digunakan untuk mengunci aplikasi agar tidak bisa dijalankan sampai waktu yang telah ditentukan. Jadi, Anda tidak perlu khawatir lagi tentang tergoda untuk bermain game selama ujian atau tugas penting lainnya!
+> Q: Lah kenapa nggak uninstall aja?  
+> A: Ntar TBW SSD kalian nambah pas install lagi njir awokawok.
 
-## Fitur
-- Menambahkan aplikasi ke daftar kunci dengan waktu tertentu (misalnya 1 hari, 2 jam, 30 menit).
-- Menampilkan daftar aplikasi yang sedang dikunci.
-- Menghapus aplikasi dari daftar kunci.
-- Menampilkan notifikasi Windows ketika aplikasi yang dikunci dijalankan, memberitahukan bahwa aplikasi tersebut sedang dikunci.
-- Secara otomatis memantau aplikasi yang sedang berjalan dan menghentikan aplikasi yang ada di daftar kunci.
+![alt text](image.png)
 
-## Daftar Perintah
-
-```
-applocker -p C:\path\to\program.exe -d hari -h jam -m menit
-```
-```
-applocker list
-```
-```
-applocker del list_num
-```
-```
-applocker run
-```
+<!-- AppLocker bantu kamu tetap fokus dengan cara memblokir aplikasi tertentu selama waktu yang kamu tentukan. Cocok buat mahasiswa yang butuh mode "NO DISTRACTION" tapi nggak mau uninstall game kesayangan 😎. -->
 
 ## Setup
-1. Pastikan Python sudah terinstall di sistem Anda.
-2. Jalankan setup.bat
-3. Tambahkan ke dalam PATH environment variable untuk kemudahan.
+1. Pastikan Python sudah terinstall.
+2. Jalankan `requirements.bat` & `install.bat`.
+3. Tambahkan path `/applocker/dist/` ke dalam **Environment Variable > PATH** _(opsional)_.
 
-## Catatan
-Aplikasi ini sedang dalam pengembangan. Beberapa fitur mungkin mengalami perubahan dan peningkatan di masa mendatang.
+## Huh?
+
+| File               | Fungsi                                                                 |
+|--------------------|------------------------------------------------------------------------|
+| `applocker.exe`       | Command utama AppLocker. Di sini kamu bisa pakai semua perintah CLI.   |
+| `addapp.exe`       | Menambahkan aplikasi ke daftar aplikasi yang akan dikunci.             |
+| `runapp.exe`       | Menjalankan background monitoring + system tray untuk AppLocker.       |
+| `listapp.exe`      | GUI sederhana untuk melihat dan menghapus aplikasi yang dikunci.       |
+
+### Contoh Penggunaan `applocker.exe`
+```bash
+applocker.exe -p "C:\Games\valorant.exe" -d 1 -h 2 -m 30
+```
+> Mengunci *Valorant* selama 1 hari, 2 jam, dan 30 menit.
+
+### Command tambahan:
+- `applocker.exe list` — Menampilkan semua aplikasi yang sedang dikunci.
+- `applocker.exe del <id>` — Menghapus aplikasi dari daftar berdasarkan ID.
+---
+**Catatan:** Masih dalam pengembangan.
