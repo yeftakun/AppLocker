@@ -3,9 +3,7 @@ from tkinter import messagebox
 import json
 import os
 
-# Tentukan path JSON relatif terhadap exe atau script
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "locker_db.json")
+DB_FILE = "locker_db.json"
 
 def load_db():
     with open(DB_FILE, "r") as f:
