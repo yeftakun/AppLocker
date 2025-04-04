@@ -19,19 +19,19 @@ Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 
 | File               | Fungsi                                                                 |
 |--------------------|------------------------------------------------------------------------|
-| `applocker.exe`       | Command utama AppLocker. Di sini kamu bisa pakai semua perintah CLI.   |
+| `applocker.exe`       | command dispatcher utama untuk AppLocker CLI.  |
 | `addapp.exe`       | Menambahkan aplikasi ke daftar aplikasi yang akan dikunci.             |
 | `runapp.exe`       | Menjalankan background monitoring + system tray untuk AppLocker.       |
-| `listapp.exe`      | GUI sederhana untuk melihat dan menghapus aplikasi yang dikunci.       |
+| `listapp.exe`      | Melihat dan menghapus aplikasi yang dikunci.       |
 
 ### Contoh Penggunaan `applocker.exe`
 ```bash
-applocker.exe -p "C:\Games\valorant.exe" -d 1 -h 2 -m 30
+applocker -p "C:\Games\valorant.exe" -d 1 -h 2 -m 30
 ```
 > Mengunci *Valorant* selama 1 hari, 2 jam, dan 30 menit.
 
 ### Command tambahan:
-- `applocker.exe list` — Menampilkan semua aplikasi yang sedang dikunci.
-- `applocker.exe del <id>` — Menghapus aplikasi dari daftar berdasarkan ID.
+- `applocker list` — Menampilkan semua aplikasi yang sedang dikunci.
+- `applocker del <id>` — Menghapus aplikasi dari daftar berdasarkan ID.
 ---
 **Catatan:** Masih dalam pengembangan.
