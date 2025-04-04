@@ -11,7 +11,7 @@ Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 <!-- AppLocker bantu kamu tetap fokus dengan cara memblokir aplikasi tertentu selama waktu yang kamu tentukan. Cocok buat mahasiswa yang butuh mode "NO DISTRACTION" tapi nggak mau uninstall game kesayangan 😎. -->
 
 ## Setup
-1. Pastikan Python sudah terinstall.
+1. Python harus sudah terinstall.
 2. Jalankan `requirements.bat` & `install.bat`.
 3. Tambahkan path `/applocker/dist/` ke dalam **Environment Variable > PATH** _(opsional)_.
 
