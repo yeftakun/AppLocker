@@ -105,7 +105,7 @@ def show_about():
         version_info = json.load(version_file)
     result = ctypes.windll.user32.MessageBoxW(
         0,
-        f"AppLocker {version_info['version']}\n\nGitHub [{version_info['license']}\nGo to GitHub for more information.",
+        f"AppLocker {version_info['version']}\n\nGitHub [{version_info['license']}]\nGo to GitHub for more information.",
         "About AppLocker",
         0x40 | 0x1  # 0x40 = Information icon, 0x1 = OK button
     )
