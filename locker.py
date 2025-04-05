@@ -3,19 +3,15 @@ import subprocess
 
 def main():
     if len(sys.argv) < 2:
-        subprocess.Popen(["runapp.exe"])
+        subprocess.Popen(["applocker_run.exe"])
         return
 
     command = sys.argv[1]
 
-    if command == "run":
-        subprocess.Popen(["runapp.exe"])
-    elif command == "list":
-        subprocess.Popen(["listapp.exe"])
+    if command == "server":
+        subprocess.Popen(["applocker_server.exe"])
     elif command == "-p":
         subprocess.Popen(["addapp.exe"] + sys.argv[1:])
-    elif command == "del":
-        subprocess.Popen(["listapp.exe"])
     else:
         print("Perintah tidak dikenal.")
 
