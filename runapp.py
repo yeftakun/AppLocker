@@ -15,7 +15,18 @@ from pystray import MenuItem as item
 
 # =====================[ Konstanta & Global Variable ]=====================
 
-DB_FILE = "locker_db.json"
+def base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+def data_path(filename):
+    return os.path.join(base_dir(), filename)
+
+# Contoh pakai
+DB_FILE = data_path("locker_db.json")
+ICON_FILE = data_path("AppLock_icon.ico")
+
 server_process = None
 
 # =====================[ Fungsi Utilitas Database ]=====================
@@ -90,7 +101,7 @@ def show_alert(message):
 
 def show_about():
     """Menampilkan informasi tentang aplikasi dan link Github."""
-    with open("version.json", "r") as version_file:
+    with open(data_path("version.json"), "r") as version_file:
         version_info = json.load(version_file)
     result = ctypes.windll.user32.MessageBoxW(
         0,
@@ -108,7 +119,8 @@ def create_icon():
     else:
         base_path = os.path.dirname(__file__)
 
-    icon_path = os.path.join(base_path, "AppLock_icon.ico")
+    icon_path = ICON_FILE  # Sudah full path dari atas
+
     if not os.path.exists(icon_path):
         raise FileNotFoundError(f"Icon file not found: {icon_path}")
 
@@ -128,11 +140,7 @@ def start_web():
         return
     # Jika server belum berjalan, jalankan server
     else:
-        # Tentukan path ke executable server
-        if getattr(sys, 'frozen', False):
-            exe_path = os.path.join(os.path.dirname(sys.executable), "applocker_server.exe")
-        else:
-            exe_path = os.path.join(os.path.dirname(__file__), "applocker_server.exe")
+        exe_path = data_path("applocker_server.exe")
 
         if not os.path.exists(exe_path):
             show_alert(f"applocker_server.exe tidak ditemukan di:\n{exe_path}")
@@ -150,13 +158,14 @@ def stop_web():
     while cek_server_status() is not None and retry < max_retry:
         retry += 1
         time.sleep(1)
-        try:
-            server_process.terminate()
-            print("Web server stopped!")
-        except Exception as e:
-            print(f"❌ Gagal menghentikan server: {e}")
-        finally:
-            server_process = cek_server_status()
+        if server_process:
+            try:
+                server_process.terminate()
+                print("Web server stopped!")
+            except Exception as e:
+                print(f"❌ Gagal menghentikan server: {e}")
+            finally:
+                server_process = cek_server_status()
 
 
 
@@ -164,12 +173,32 @@ def open_web():
     """Membuka antarmuka web di browser default."""
     webbrowser.open("http://localhost:5000")
 
+# def cek_server_status():
+#     """Mengembalikan objek proses server jika sedang berjalan, jika tidak return None."""
+#     for proc in psutil.process_iter(attrs=["pid", "name"]):
+#         if proc.info["name"] == "applocker_server.exe":
+#             return proc
+#     return None
+
 def cek_server_status():
     """Mengembalikan objek proses server jika sedang berjalan, jika tidak return None."""
-    for proc in psutil.process_iter(attrs=["pid", "name"]):
-        if proc.info["name"] == "applocker_server.exe":
-            return proc
+    expected_path = os.path.normcase(os.path.abspath(data_path("applocker_server.exe")))
+
+    for proc in psutil.process_iter(attrs=["pid", "name", "exe"]):
+        try:
+            exe_path = proc.info.get("exe")
+            if exe_path:
+                exe_path = os.path.normcase(os.path.abspath(exe_path))
+                if exe_path == expected_path:
+                    return proc
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+        except Exception as e:
+            print(f"[WARN] cek_server_status: {e}")
+            continue
     return None
+
+
 
 # =====================[ Fungsi Menu Dinamis System Tray ]=====================
 
@@ -200,7 +229,7 @@ def update_menu(icon):
     menu_items.append(item('Exit', lambda: on_exit(icon, None)))
 
     icon.menu = pystray.Menu(*menu_items)
-    # icon.update_menu()
+    icon.update_menu()
 
 def start_web_and_update(icon):
     """Start server dan perbarui menu tray."""

@@ -2,9 +2,22 @@ from flask import Flask, render_template, request, redirect
 import json
 import os
 from datetime import datetime, timedelta
+import sys
 
-app = Flask(__name__)
-DB_FILE = "locker_db.json"
+def base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+def data_path(filename):
+    return os.path.join(base_dir(), filename)
+
+app = Flask(__name__, template_folder=data_path("templates"))
+
+
+# Contoh pakai
+DB_FILE = data_path("locker_db.json")
+# ICON_FILE = resource_path("AppLock_icon.ico")
 
 def load_db():
     with open(DB_FILE, "r") as f:

@@ -1,7 +1,18 @@
 import sys
+import os
 import subprocess
 import psutil
 import json
+
+def base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+def data_path(filename):
+    return os.path.join(base_dir(), filename)
+
+VERSION_FILE = data_path("version.json")
 
 def main():
     if len(sys.argv) < 2:
@@ -36,7 +47,8 @@ def main():
         print("  status   Cek status AppLocker.")
         print("  help     Tampilkan pesan bantuan ini.")
     elif command == "version" or command == "-v":
-        with open("version.json", "r") as version_file:
+        version_path = os.path.join(BASE_DIR, VERSION_FILE)
+        with open(version_path, "r") as version_file:
             version_info = json.load(version_file)
             print(f"Version: {version_info['version']} | GitHub [{version_info['license']}]: {version_info['github']}")
     else:
