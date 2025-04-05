@@ -5,149 +5,130 @@ import schedule
 import threading
 import ctypes
 import os
-from datetime import datetime, timedelta
-import pystray
-from pystray import MenuItem as item
-from PIL import Image, ImageDraw
 import sys
 import subprocess
 import webbrowser
-import pygame
-import socket
+from datetime import datetime
+from PIL import Image
+import pystray
+from pystray import MenuItem as item
 
-AUDIO_FILE = "alert.wav"  # Ganti dengan path file audio kamu
+# =====================[ Konstanta & Global Variable ]=====================
 
-server_process = None
 DB_FILE = "locker_db.json"
+server_process = None
 
-# Inisialisasi pygame mixer sekali saat awal
-pygame.mixer.init()
-try:
-    pygame.mixer.music.load(AUDIO_FILE)
-except Exception as e:
-    print(f"Gagal memuat audio: {e}")
-
-# def get_base_dir():
-#     # Gunakan path asli saat dikompilasi dengan PyInstaller
-#     if getattr(sys, 'frozen', False):
-#         return os.path.dirname(sys.executable)
-#     else:
-#         return os.path.dirname(os.path.abspath(__file__))
-
-# BASE_DIR = get_base_dir()
-# DB_FILE = os.path.join(BASE_DIR, "locker_db.json")
+# =====================[ Fungsi Utilitas Database ]=====================
 
 def init_db():
+    """Inisialisasi file database jika belum ada."""
     if not os.path.exists(DB_FILE):
         with open(DB_FILE, "w") as f:
             json.dump({"locked_apps": []}, f)
 
-def play_alert_sound():
-    def _play():
-        try:
-            pygame.mixer.music.play()
-        except Exception as e:
-            print(f"Gagal memutar audio: {e}")
-    threading.Thread(target=_play, daemon=True).start()
-
-def wait_for_server(host="localhost", port=5000, timeout=10):
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        try:
-            with socket.create_connection((host, port), timeout=1):
-                return True
-        except (ConnectionRefusedError, socket.timeout):
-            time.sleep(0.2)
-    return False
-
 def load_db():
+    """Memuat data dari database JSON."""
     with open(DB_FILE, "r") as f:
         return json.load(f)
-    
+
 def save_db(data):
+    """Menyimpan data ke database JSON."""
     with open(DB_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
+# =====================[ Fungsi Pemantauan dan Pemblokiran Aplikasi ]=====================
+
 def clean_expired():
+    """Menghapus aplikasi yang masa kuncinya sudah habis."""
     data = load_db()
     now = datetime.now()
-    data["locked_apps"] = [app for app in data["locked_apps"]
-                           if datetime.strptime(app["expire_time"], "%Y-%m-%d %H:%M:%S") > now]
-    with open(DB_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
-def show_alert(message):
-    ctypes.windll.user32.MessageBoxW(0, message, "AppLocker Alert", 0x40 | 0x1)
-
-# Mengecek apakah ada aplikasi yang sudah tidak perlu dikunci
-def clean_expired():
-    data = load_db()
-    now = datetime.now()
-    data["locked_apps"] = [app for app in data["locked_apps"] if datetime.strptime(app["expire_time"], "%Y-%m-%d %H:%M:%S") > now]
+    data["locked_apps"] = [
+        app for app in data["locked_apps"]
+        if datetime.strptime(app["expire_time"], "%Y-%m-%d %H:%M:%S") > now
+    ]
     save_db(data)
 
-# Menampilkan alert window di Windows
-def show_alert(message):
-    ctypes.windll.user32.MessageBoxW(0, message, "AppLocker Alert", 0x40 | 0x1)  # 0x40 = Information icon, 0x1 = OK button
-
-# Mengecek proses yang berjalan dan memblokir aplikasi yang ada di daftar
 def monitor_processes():
-    data = load_db()
-    locked_paths = {app["path"] for app in data["locked_apps"]}
-    for proc in psutil.process_iter(attrs=["pid", "exe"]):
-        try:
-            if proc.info["exe"] and proc.info["exe"] in locked_paths:
-                proc.terminate()
-                print(f"🔒 {proc.info['exe']} dihentikan!")
-                play_alert_sound()  # 🔊 Tambahkan ini
-                show_alert(f"Di kunci AppLocker, '{proc.info['exe']}' tidak dapat dijalankan.")
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
+    try:
+        data = load_db()
+        locked_paths = {app["path"] for app in data["locked_apps"]}
+        for proc in psutil.process_iter(attrs=["pid", "exe"]):
+            try:
+                if proc.info["exe"] and proc.info["exe"] in locked_paths:
+                    proc.terminate()
+                    print(f"🔒 {proc.info['exe']} dihentikan!")
+                    show_alert(f"Di kunci AppLocker, '{proc.info['exe']}' tidak dapat dijalankan.")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+    except Exception as e:
+        print(f"[ERROR] monitor_processes failed: {e}")
+
 
 def background_loop():
+    schedule.every(5).seconds.do(lambda: server_status_wrapper())
     schedule.every(5).seconds.do(monitor_processes)
     schedule.every(30).seconds.do(clean_expired)
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print(f"[ERROR] Background loop crash: {e}")
         time.sleep(1)
 
+def server_status_wrapper():
+    try:
+        cek_server_status()
+    except Exception as e:
+        print(f"[ERROR] cek_server_status failed: {e}")
 
-# def create_icon():
-#     image = Image.new("RGB", (64, 64), "red")
-#     d = ImageDraw.Draw(image)
-#     d.rectangle([16, 16, 48, 48], fill="white")
-#     return image
 
-from PIL import Image, ImageDraw  # Hapus ImageResampling jika tidak diperlukan
+# =====================[ Fungsi Tampilan & Interaksi Pengguna ]=====================
+
+def show_alert(message):
+    """Menampilkan pop-up alert Windows."""
+    ctypes.windll.user32.MessageBoxW(0, message, "AppLocker Alert", 0x40 | 0x00001000)  # 0x10 = Stop icon, Close button only
+
+def show_about():
+    """Menampilkan informasi tentang aplikasi dan link Github."""
+    with open("version.json", "r") as version_file:
+        version_info = json.load(version_file)
+    result = ctypes.windll.user32.MessageBoxW(
+        0,
+        f"AppLocker {version_info['version']}\n\nGitHub [{version_info['license']}\nGo to GitHub for more information.",
+        "About AppLocker",
+        0x40 | 0x1  # 0x40 = Information icon, 0x1 = OK button
+    )
+    if result == 1:  # Jika OK diklik
+        webbrowser.open(f"{version_info['github']}")
 
 def create_icon():
-    # Cek apakah aplikasi berjalan dalam mode PyInstaller
+    """Membuat ikon untuk system tray."""
     if getattr(sys, 'frozen', False):
-        base_path = sys._MEIPASS  # Direktori sementara PyInstaller
+        base_path = sys._MEIPASS  # Untuk PyInstaller
     else:
-        base_path = os.path.dirname(__file__)  # Direktori script
+        base_path = os.path.dirname(__file__)
 
     icon_path = os.path.join(base_path, "AppLock_icon.ico")
     if not os.path.exists(icon_path):
         raise FileNotFoundError(f"Icon file not found: {icon_path}")
 
     icon = Image.open(icon_path)
-    icon = icon.resize((64, 64), Image.Resampling.LANCZOS)  # Gunakan LANCZOS
+    icon = icon.resize((64, 64), Image.Resampling.LANCZOS)
     return icon
 
-# def on_list():
-#     os.system("start listapp.exe")
-
-# def on_add():
-#     os.system("start addapp.exe")
-
-def on_exit(icon, item):
-    icon.stop()
-    os._exit(0)
+# =====================[ Fungsi Web Server ]=====================
 
 def start_web():
+    """Menjalankan server Flask jika belum berjalan."""
     global server_process
-    if server_process is None:
+    # Cek apakah server sudah berjalan
+    server_process = cek_server_status()
+    if server_process is not None:
+        show_alert("Web interface sudah berjalan!")
+        return
+    # Jika server belum berjalan, jalankan server
+    else:
+        # Tentukan path ke executable server
         if getattr(sys, 'frozen', False):
             exe_path = os.path.join(os.path.dirname(sys.executable), "applocker_server.exe")
         else:
@@ -158,31 +139,56 @@ def start_web():
             return
 
         server_process = subprocess.Popen(exe_path)
-        print("Web server started!")
-
+        show_alert("Web interface berhasil dijalankan di http://localhost:5000")
 
 def stop_web():
     global server_process
-    if server_process is not None:
-        server_process.terminate()
-        server_process = None
-        print("Web server stopped!")
+    # Melakukan looping stop untuk memastikan server berhenti, dengan kondisi cek_server_status
+    
+    max_retry = 5
+    retry = 0
+    while cek_server_status() is not None and retry < max_retry:
+        retry += 1
+        time.sleep(1)
+        try:
+            server_process.terminate()
+            print("Web server stopped!")
+        except Exception as e:
+            print(f"❌ Gagal menghentikan server: {e}")
+        finally:
+            server_process = cek_server_status()
+
+
 
 def open_web():
+    """Membuka antarmuka web di browser default."""
     webbrowser.open("http://localhost:5000")
 
-def show_about():
-    result = ctypes.windll.user32.MessageBoxW(
-        0,
-        "AppLocker v1.0\n\nWebsite:\nhttps://github.com/yourusername/AppLocker",
-        "About AppLocker",
-        0x40 | 0x1  # 0x40 = Information icon, 0x1 = OK button
-    )
-    if result == 1:  # OK
-        webbrowser.open("https://github.com/yourusername/AppLocker")
+def cek_server_status():
+    """Mengembalikan objek proses server jika sedang berjalan, jika tidak return None."""
+    for proc in psutil.process_iter(attrs=["pid", "name"]):
+        if proc.info["name"] == "applocker_server.exe":
+            return proc
+    return None
+
+# =====================[ Fungsi Menu Dinamis System Tray ]=====================
+
+def on_exit(icon, item):
+    """Keluar dari aplikasi AppLocker."""
+    stop_web()
+    icon.stop()
+    os._exit(0)
 
 def update_menu(icon):
+    """Memperbarui menu system tray sesuai status server."""
     menu_items = []
+
+    # Cek status server
+    global server_process
+    if cek_server_status() is None:
+        server_process = None
+    else:
+        server_process = cek_server_status()
 
     if server_process is None:
         menu_items.append(item('Start Web Interface', lambda: start_web_and_update(icon)))
@@ -190,37 +196,36 @@ def update_menu(icon):
         menu_items.append(item('Stop Web Interface', lambda: stop_web_and_update(icon)))
         menu_items.append(item('Open Web Interface', open_web))
 
-    menu_items.append(item('About', lambda: show_about()))
+    menu_items.append(item('About', show_about))
     menu_items.append(item('Exit', lambda: on_exit(icon, None)))
 
     icon.menu = pystray.Menu(*menu_items)
-    icon.update_menu()
+    # icon.update_menu()
 
 def start_web_and_update(icon):
+    """Start server dan perbarui menu tray."""
     start_web()
-    if wait_for_server():
-        update_menu(icon)
-        open_web()  # 👈 Langsung buka browser jika server berhasil
-    else:
-        show_alert("Gagal menjalankan Web Interface. Pastikan applocker_server.exe dapat berjalan dengan benar.")
+    time.sleep(1)
+    update_menu(icon)
 
 def stop_web_and_update(icon):
+    """Stop server dan perbarui menu tray."""
     stop_web()
     update_menu(icon)
 
+# =====================[ Main System Tray Logic ]=====================
 
 def tray_icon():
+    """Menampilkan icon di system tray dengan menu dinamis."""
     icon = pystray.Icon("AppLocker")
     icon.icon = create_icon()
     icon.title = "AppLocker Running"
     update_menu(icon)
     icon.run()
 
+# =====================[ Entry Point ]=====================
 
 if __name__ == "__main__":
-    if not os.path.exists(DB_FILE):
-        with open(DB_FILE, "w") as f:
-            json.dump({"locked_apps": []}, f)
-
+    init_db()
     threading.Thread(target=background_loop, daemon=True).start()
     tray_icon()

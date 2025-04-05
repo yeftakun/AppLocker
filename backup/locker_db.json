@@ -1,0 +1,28 @@
+{
+    "locked_apps": [
+        {
+            "path": "D:\\Games\\PointBlank\\PBLauncher.exe",
+            "expire_time": "2025-04-19 00:02:56"
+        },
+        {
+            "path": "D:\\Games\\Metal Gear Rising Revengeance\\METAL GEAR RISING REVENGEANCE.exe",
+            "expire_time": "2025-04-19 00:03:54"
+        },
+        {
+            "path": "D:\\Games\\F1 2020\\F1_2020.exe",
+            "expire_time": "2025-04-19 00:06:22"
+        },
+        {
+            "path": "D:\\Games\\MiSide\\MiSideFull.exe",
+            "expire_time": "2025-04-19 00:06:58"
+        },
+        {
+            "path": "C:\\Program Files (x86)\\Steam\\steam.exe",
+            "expire_time": "2025-04-19 00:07:49"
+        },
+        {
+            "path": "C:\\Users\\yefta\\AppData\\Local\\osu!\\osu!.exe",
+            "expire_time": "2025-04-19 16:29:02"
+        }
+    ]
+}

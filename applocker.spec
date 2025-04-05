@@ -5,7 +5,7 @@ a = Analysis(
     ['locker.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('version.json', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
