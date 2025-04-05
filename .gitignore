@@ -16,7 +16,6 @@ dist/*
 *.zip
 *.pyz
 *.pkg
-*.html
 *.txt
 
 # System files
