@@ -1,6 +1,5 @@
 # AppLocker
 
-## Deskripsi Aplikasi
 Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 
 > Q: Lah kenapa nggak uninstall aja?  
@@ -12,26 +11,21 @@ Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 
 ## Setup
 1. Python harus sudah terinstall.
-2. Jalankan `requirements.bat` & `install.bat`.
+2. Jalankan `requirements.bat` & `build.bat`.
 3. Tambahkan path `/applocker/dist/` ke dalam **Environment Variable > PATH** _(opsional)_.
 
-## Huh?
-
-| File               | Fungsi                                                                 |
-|--------------------|------------------------------------------------------------------------|
-| `applocker.exe`       | command dispatcher utama untuk AppLocker CLI.  |
-| `addapp.exe`       | Menambahkan aplikasi ke daftar aplikasi yang akan dikunci.             |
-| `runapp.exe`       | Menjalankan background monitoring + system tray untuk AppLocker.       |
-| `listapp.exe`      | Melihat dan menghapus aplikasi yang dikunci.       |
-
-### Contoh Penggunaan `applocker.exe`
-```bash
-applocker -p "C:\Games\valorant.exe" -d 1 -h 2 -m 30
+## Run
 ```
-> Mengunci *Valorant* selama 1 hari, 2 jam, dan 30 menit.
+$ applocker     # jalankan applocker
+```
+```
+$ applocker status  # Status applocker
+```
+```
+$ applocker help    # Bajtuan
+```
+```
+$ applocker version #versinya
 
-### Command tambahan:
-- `applocker list` — Menampilkan semua aplikasi yang sedang dikunci.
-- `applocker del <id>` — Menghapus aplikasi dari daftar berdasarkan ID.
 ---
 **Catatan:** Masih dalam pengembangan.

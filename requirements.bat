@@ -1,20 +1,13 @@
 @echo off
-echo Installing exact versions of Python dependencies...
+echo Installing required packages...
 
-REM Install each module with specified version
 pip install psutil==6.0.0
-pip install schedule==1.2.2
-pip install pystray==0.19.5
-pip install pillow==11.1.0
+pip install Pillow==11.1.0
+pip install flask==3.0.3
 
-echo.
-echo === Installed Versions ===
-for %%i in (psutil schedule pystray pillow) do (
-    echo %%i:
-    pip show %%i | findstr /R "^Version:"
-    echo.
-)
+:: Untuk pystray dan schedule, install tanpa versi karena versinya tidak terdeteksi
+pip install pystray
+pip install schedule
 
-echo Requirements installed successfully.
-echo If you want to run AppLocker at any directory, you must set to the system environment variable PATH the path to the AppLocker/dist directory.
+echo Done.
 pause
