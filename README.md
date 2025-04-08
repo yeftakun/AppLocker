@@ -26,6 +26,6 @@ $ applocker help    # Bajtuan
 ```
 ```
 $ applocker version #versinya
-
+```
 ---
 **Catatan:** Masih dalam pengembangan.
