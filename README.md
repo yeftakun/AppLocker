@@ -15,9 +15,13 @@ Mau nugas tapi kegoda buat login? Kunci aja pakai **AppLocker**.
 3. Tambahkan path `/applocker/dist/` ke dalam **Environment Variable > PATH** _(opsional)_.
 
 ## Run
+
 Jalankan applocker: `$ applocker`
+
 Status applocker: `$ applocker status`
+
 Bantuan: `$ applocker help`
+
 Cek versi: `$ applocker version`
 
 ---
