@@ -25,4 +25,4 @@ Bantuan: `$ applocker help`
 Cek versi: `$ applocker version`
 
 ---
-**Catatan:** Masih dalam pengembangan.
+**Catatan:** Masih dalam pengembangan (tapi males lanjut)
